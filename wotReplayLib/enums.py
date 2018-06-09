@@ -15,7 +15,7 @@ class BattleResult(MyEnum):
     UNKNOWN=3
 
     @staticmethod
-    def fromString(s):
+    def from_string(s):
         try:
             return BattleResult[s]
         except KeyError:
@@ -30,7 +30,7 @@ class FinishReason(MyEnum):
     TECHNICAL=5
 
     @staticmethod
-    def fromString(s):
+    def from_string(s):
         try:
             return FinishReason[s]
         except KeyError:
@@ -46,7 +46,7 @@ class DeathReason(MyEnum):
     DROWNED=5
 
     @staticmethod
-    def fromString(s):
+    def from_string(s):
         try:
             return DeathReason[s]
         except KeyError:
@@ -57,7 +57,7 @@ class Team(MyEnum):
     ENEMY=1
 
     @staticmethod
-    def fromString(s):
+    def from_string(s):
         try:
             return Team[s]
         except KeyError:
@@ -71,7 +71,7 @@ class BattleType(MyEnum):
     GLOBALMAP=13
 
     @staticmethod
-    def fromString(s):
+    def from_string(s):
         try:
             return BattleType[s]
         except KeyError:

@@ -6,14 +6,7 @@ import wotReplayLib.enums
 
 from pathlib import Path
 
-class ToString:
-    def __str__(self):
-        return str(self.__dict__) 
-
-    def __repr__(self):
-        return str(self.__dict__)
-
-class Replay(ToString):
+class Replay:
     """"""
     def __init__(self, f):
         """"""
@@ -151,7 +144,7 @@ class Replay(ToString):
 
 
 
-class PlayerRecord(ToString):
+class PlayerRecord:
     """"""
     def __init__(self):
         """"""
