@@ -43,7 +43,7 @@ def extractRaw(blocks, extractPlayers=True):
                 battleResult = blocks[1][0]
                 winner_team = battleResult['common']['winnerTeam']
                 if winner_team == owner_team:
-                    battleRecord = battleRecord + ";" + str(BattleResult.WIN.value)
+                    battleRecord = battleRecord + ";" + str(BattleResult.VICTORY.value)
                 elif winner_team != 0:
                     battleRecord = battleRecord + ";" + str(BattleResult.DEFEAT.value)
                 else:
@@ -59,7 +59,7 @@ def extractRaw(blocks, extractPlayers=True):
                             logging.warning("Unmached vehicleNo %s in battle result block" % (vehicleNo))
                         else:
                             if winner_team == firstVehicle['team']:
-                                player_result = BattleResult.WIN
+                                player_result = BattleResult.VICTORY
                             elif winner_team != 0:
                                 player_result = BattleResult.DEFEAT
                             else:
