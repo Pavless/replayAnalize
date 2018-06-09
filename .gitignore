@@ -1,0 +1,5 @@
+replays/
+jsonDump/
+**/__pycache__/
+*.out
+*.log
