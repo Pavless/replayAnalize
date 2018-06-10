@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
+from datetime import datetime
+
 import wotReplayLib.enums
-import datetime
 
 # --- replay filters ---
 def battle_type_filter(replays, battle_type):

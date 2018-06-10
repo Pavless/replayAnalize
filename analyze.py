@@ -3,6 +3,7 @@
 import logging
 import argparse
 import os
+from datetime import datetime
 
 import wotReplayLib.types
 import wotReplayLib.enums
@@ -67,29 +68,29 @@ if __name__ == "__main__":
 
     # --- replay filters ---
     if args.incomplete:
-        replay_filters.append((wotReplayLib.filters.block_count_filter, 1))
+        replay_filters.append((wotReplayLib.filters.block_count_filter, [1]))
     elif args.complete:
-        replay_filters.append((wotReplayLib.filters.block_count_filter, 2))
+        replay_filters.append((wotReplayLib.filters.block_count_filter, [2]))
     elif args.unique:
-        replay_filters.append((wotReplayLib.filters.block_count_filter, 2))
-        replay_filters.append((wotReplayLib.filters.unique_filter, lambda replay: replay.id))
+        replay_filters.append((wotReplayLib.filters.block_count_filter, [2]))
+        replay_filters.append((wotReplayLib.filters.unique_filter, [lambda replay: replay.id]))
 
     if args.map != None:
-        replay_filters.append((wotReplayLib.filters.map_filter, args.map))
+        replay_filters.append((wotReplayLib.filters.map_filter, [args.map]))
     if args.date != None:
-        replay_filters.append((wotReplayLib.filters.date_filter, args.date))
+        replay_filters.append((wotReplayLib.filters.date_filter, [args.date]))
     
     # --- player record filters ---
     if args.tag != None:
-        player_filters.append((tag_filter, args.tag))
+        player_filters.append((tag_filter, [args.tag]))
     
     if args.team != None:
-        player_filters.append((team_filter, args.team))
+        player_filters.append((team_filter, [args.team]))
 
     if args.result != None:
-        player_filters.append((player_battle_result_filter, args.result))
+        player_filters.append((player_battle_result_filter, [args.result]))
 
     if args.vehicle != None:
-        player_filters.append((vehicle_filter, args.vehicle))
+        player_filters.append((vehicle_filter, [args.vehicle]))
 
     analyze(args.directory, replay_filters=replay_filters, player_filters=player_filters)
