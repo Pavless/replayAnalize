@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 
 from datetime import datetime
+from collections import namedtuple
 
 import wotReplayLib.enums
+
+
+Filter = namedtuple("Filter", ["func", "args"])
 
 # --- replay filters ---
 def battle_type_filter(replays, battle_type):
