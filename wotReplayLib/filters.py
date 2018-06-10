@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import wotReplayLib.enum
+import wotReplayLib.enums
 import datetime
 
 # --- replay filters ---
@@ -24,6 +24,18 @@ def date_filter(replays, date):
     """"""
     return [replay for replay in replays if datetime.strptime(replay.date_time, "%d.%m.%Y %H:%M:%S").date() == date]
 
+# +++ unique +++
+def unique_filter(replays, get_key):
+    """"""
+    out = []
+    keys = set()
+    for replay in replays:
+        key = get_key(replay)
+        if key not in keys:
+            out.append(replay)
+            keys.add(key)
+    return out
+
 # --- player record filters ---
 def vehicle_filter(player_records, vehicle):
     """"""
@@ -36,3 +48,7 @@ def player_battle_result_filter(player_records, battle_result):
 def team_filter(player_records, team):
     """"""
     return [player_record for player_record in player_records if player_record.team == team]
+
+def tag_filter(player_records, tag):
+    """"""
+    return [player_record for player_record in player_records if player_record.clan_abbrev == tag]
