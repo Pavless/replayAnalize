@@ -104,7 +104,7 @@ class Replay:
                         if len(vehicles) == 0:
                             logging.warning("Empty vehicles for vehicle_no %s" % (vehicle_no))
                         elif len(vehicles) > 1:
-                            logging.warning("More vehicles for vehicle_no $s, taking first only the first vehicle" % (vehicle_no))
+                            logging.warning("More vehicles for vehicle_no %s, taking first only the first vehicle" % (str(vehicle_no)))
                         if len(vehicles) >= 1:
                             player_record = self.player_records[vehicle_no]
                             vehicle = vehicles[0]
@@ -126,7 +126,7 @@ class Replay:
                             player_record.damage = vehicle['damageDealt']
                             player_record.sniper_damage = vehicle['sniperDamageDealt']
                             player_record.team_damage = vehicle['tdamageDealt']
-                            player_record.assist_tract = vehicle['damageAssistedTrack']
+                            player_record.assist_track = vehicle['damageAssistedTrack']
                             player_record.assist_spot = vehicle['damageAssistedRadio']
                             player_record.assist_stun = vehicle['damageAssistedStun']
                             player_record.shots = vehicle['shots']
@@ -138,6 +138,7 @@ class Replay:
                             player_record.points_capture = vehicle['capturePoints']
                             player_record.death_reason = wotReplayLib.enums.DeathReason(vehicle['deathReason'])
                             player_record.milage = vehicle['mileage']
+                            
         
         except KeyError as e:
             logging.error("In %s, while getting info from battle result block KeyError: %s" % (str(self.file_path), str(e)))

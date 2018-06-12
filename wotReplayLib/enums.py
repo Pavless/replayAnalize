@@ -28,6 +28,7 @@ class FinishReason(MyEnum):
     TIMEOUT=3
     FAILURE=4
     TECHNICAL=5
+    U10=10
 
     @staticmethod
     def from_string(s):
@@ -80,6 +81,9 @@ class BattleType(MyEnum):
     BATTLEFORSTRONGHOLD=11
     U12=12
     GLOBALMAP=13
+    U20=20
+    U21=21
+    U27=27
 
     @staticmethod
     def from_string(s):

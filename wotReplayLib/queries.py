@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+import statistics
+from collections import namedtuple
+from itertools import groupby
+
 # ==== stat list ====
 # damage
 # kills
@@ -10,15 +14,17 @@
 # team kills
 # xp
 # spots
+# win rate
+# survival rate
 
-def top_stat(player_records, stat_selector, group_by, n=10):
-    return (list(reversed(sorted(player_records, key=stat_selector))))[:n]
+def highest_stat(player_records, stat_selector):
+    return reversed(sorted(player_records, key=stat_selector))
 
-def top_avg_stat(player_records, stat_selector, group_by, n=10):
-    
+def lowest_stat(player_records, stat_selector):
+    return sorted(player_records, key=stat_selector)
 
-def worst_stat(player_records, stat_selector, group_by, n=10):
-    return (list(sorted(player_records, key=stat_selector)))[:n]
+def avg_stat(player_records, stat_selector):
+    return statistics.mean([stat_selector(record) for record in player_records])
 
-def worst_avg_stat(player_records, stat_selector, group_by, n=10):
-    pass
+def total_stat(player_records, stat_selector):
+    return sum([stat_selector(record) for record in player_records])

@@ -32,7 +32,7 @@ def date_filter(replays, date):
 # +++ unique +++
 def unique_filter(replays, get_key):
     """"""
-    out = []
+    out = [] 
     keys = set()
     for replay in replays:
         key = get_key(replay)
