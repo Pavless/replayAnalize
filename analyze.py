@@ -73,7 +73,10 @@ def analyze(directory, replay_filters, player_filters):
     overall_stat_queries.append(StatQuery("survival rate", lambda records: len([r for r in records if r.death_reason == enums.DeathReason.ALIVE]) / len(records)))
 
     id_lambda = lambda r: r.id
-    name_lambda = lambda r: r.name
+    id_to_name = dict()
+    for record in player_records:
+        if record.id not in id_to_name:
+            id_to_name[record.id] = record.name
     
     # +++ for each player +++
     d_players_name = "players_stats"
@@ -108,33 +111,33 @@ def analyze(directory, replay_filters, player_filters):
     with open("leaderboard.txt", "w") as out:
         for query in overall_stat_queries:
             out.write("%25s: %s\n" % ("Query","Highest " + query.name))
-            groups =[(name, list(records)) for name, records in groupby(sorted(player_records, key=name_lambda), key=name_lambda)]
-            groups = [(name, query.get_stat(records)) for name, records in groups]
+            groups =[(id, list(records)) for id, records in groupby(sorted(player_records, key=id_lambda), key=id_lambda)]
+            groups = [(id, query.get_stat(records)) for id, records in groups]
             groups.sort(key=lambda t: t[1], reverse=True)
-            for name, value in islice(groups, n):
-                out.write("%25s: %.2f\n" % (name, value))
+            for id, value in islice(groups, n):
+                out.write("%25s: %.2f\n" % (id_to_name[id], value))
             out.write("\n")
 
         for query in stat_queries:
             out.write("%25s: %s\n" % ("Query", "Average " + query.name))
-            groups = [(name, statistics.mean([query.get_stat(record) for record in records])) for name, records in groupby(sorted(player_records, key=name_lambda), key=name_lambda)]
+            groups = [(id, statistics.mean([query.get_stat(record) for record in records])) for id, records in groupby(sorted(player_records, key=id_lambda), key=id_lambda)]
             groups.sort(key=lambda t: t[1], reverse=True)
-            for name, value in islice(groups, n):
-                out.write("%25s: %.2f\n" % (name, value))
+            for id, value in islice(groups, n):
+                out.write("%25s: %.2f\n" % (id_to_name[id], value))
             out.write("\n")
 
             out.write("%25s: %s\n" % ("Query", "Total " + query.name))
-            groups = [(name, sum([query.get_stat(record) for record in records])) for name, records in groupby(sorted(player_records, key=name_lambda), key=name_lambda)]
+            groups = [(id, sum([query.get_stat(record) for record in records])) for id, records in groupby(sorted(player_records, key=id_lambda), key=id_lambda)]
             groups.sort(key=lambda t: t[1], reverse=True)
-            for name, value in islice(groups, n):
-                out.write("%25s: %i\n" % (name, value))
+            for id, value in islice(groups, n):
+                out.write("%25s: %i\n" % (id_to_name[id], value))
             out.write("\n")
 
             out.write("%25s: %s\n" % ("Query", "Highest " + query.name))
-            groups = [(name, max([query.get_stat(record) for record in records])) for name, records in groupby(sorted(player_records, key=name_lambda), key=name_lambda)]
+            groups = [(id, max([query.get_stat(record) for record in records])) for id, records in groupby(sorted(player_records, key=id_lambda), key=id_lambda)]
             groups.sort(key=lambda t: t[1], reverse=True)
-            for name, value in islice(groups, n):
-                out.write("%25s: %i\n" % (name, value))
+            for id, value in islice(groups, n):
+                out.write("%25s: %i\n" % (id_to_name[id], value))
             out.write("\n")
 
 
