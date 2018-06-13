@@ -140,6 +140,14 @@ def analyze(directory, replay_filters, player_filters):
                 out.write("%25s: %i\n" % (id_to_name[id], value))
             out.write("\n")
 
+    with open("cumulative.txt", "w") as out:
+        for query in overall_stat_queries:
+            out.write("%25s: %i\n" % ("Total " + query.name, query.get_stat(player_records)))
+        out.write("\n")
+        for query in stat_queries:
+            out.write("%25s: %i\n" % ("Total " + query.name, sum([query.get_stat(record) for record in player_records])))
+
+
 
 def validate_date(s):
     try:

@@ -4,5 +4,6 @@ jsonDump/
 *.out
 *.log
 leaderboard.txt
+cumulative.txt
 players_stats/*
 !players_stats/.gitkeep
