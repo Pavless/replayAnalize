@@ -5,6 +5,9 @@ import argparse
 import os
 from datetime import datetime
 from itertools import groupby
+from itertools import islice
+from collections import namedtuple
+import statistics
 
 import wotReplayLib.types
 from wotReplayLib import enums
@@ -52,66 +55,88 @@ def analyze(directory, replay_filters, player_filters):
     # spots
     # win rate
     # survival rate
+    StatQuery = namedtuple("StatQuery", "name get_stat")
+    stat_queries = []
+    stat_queries.append(StatQuery("damage", lambda r: r.damage))
+    stat_queries.append(StatQuery("kills", lambda r: r.kills))
+    stat_queries.append(StatQuery("assistance", lambda r: r.assist_track + r.assist_spot + r.assist_stun))
+    stat_queries.append(StatQuery("spot assistance", lambda r: r.assist_spot))
+    stat_queries.append(StatQuery("stun assistance", lambda r: r.assist_stun))
+    stat_queries.append(StatQuery("track assistance", lambda r: r.assist_track))
+    stat_queries.append(StatQuery("team kills", lambda r: r.team_kills))
+    stat_queries.append(StatQuery("xp", lambda r: r.xp))
+    stat_queries.append(StatQuery("spots", lambda r: r.spots))
 
+    overall_stat_queries = []
+    overall_stat_queries.append(StatQuery("battles", lambda records: len(records)))
+    overall_stat_queries.append(StatQuery("win rate", lambda records: len([r for r in records if r.battle_result == enums.BattleResult.VICTORY]) / len(records)))
+    overall_stat_queries.append(StatQuery("survival rate", lambda records: len([r for r in records if r.death_reason == enums.DeathReason.ALIVE]) / len(records)))
+
+    id_lambda = lambda r: r.id
+    name_lambda = lambda r: r.name
+    
     # +++ for each player +++
     d_players_name = "players_stats"
     if os.path.isdir(d_players_name):
-        id_lambda = lambda r: r.id
         for id, records in groupby(sorted(player_records, key=id_lambda), key=id_lambda):
             records = list(records)
             if len(records) == 0:
                 logging.error("Empty records for player id: %i" % (id))
                 continue
-            win_rate = len([r for r in records if r.battle_result == enums.BattleResult.VICTORY]) / len(records)
-            survival_rate = len([r for r in records if r.death_reason == enums.DeathReason.ALIVE]) / len(records)
             with open(os.path.join(d_players_name, records[0].name + ".txt"), "w") as out:
                 out.write("%25s: %i\n" % ("ID", id))
                 out.write("%25s: %s\n" % ("Player name", records[0].name))
-                out.write("%25s: %i\n" % ("Battles", len(records)))
-                out.write("%25s: %i %%\n" % ("Win rate", win_rate * 100))
-                out.write("%25s: %i %%\n" % ("Survival rate", survival_rate * 100))
+                for query in overall_stat_queries:
+                    out.write("%25s: %.2f\n" % (query.name, query.get_stat(records)))
                 out.write("\n")
-                out.write("%25s: %.2f\n" % ("Average damage", queries.avg_stat(records, lambda r: r.damage)))
-                out.write("%25s: %.2f\n" % ("Average kills", queries.avg_stat(records, lambda r: r.kills)))
-                out.write("%25s: %.2f\n" % ("Average assistance", queries.avg_stat(records, lambda r: r.assist_track + r.assist_spot + r.assist_stun)))
-                out.write("%25s: %.2f\n" % ("Average spot assistance", queries.avg_stat(records, lambda r: r.assist_spot)))
-                out.write("%25s: %.2f\n" % ("Average stun assistance", queries.avg_stat(records, lambda r: r.assist_stun)))
-                out.write("%25s: %.2f\n" % ("Average track assistance", queries.avg_stat(records, lambda r: r.assist_track)))
-                out.write("%25s: %.2f\n" % ("Average team kills", queries.avg_stat(records, lambda r: r.team_kills)))
-                out.write("%25s: %.2f\n" % ("Average team damage", queries.avg_stat(records, lambda r: r.team_damage)))
-                out.write("%25s: %.2f\n" % ("Average xp", queries.avg_stat(records, lambda r: r.xp)))
-                out.write("%25s: %.2f\n" % ("Average spots", queries.avg_stat(records, lambda r: r.spots)))
+                for query in stat_queries:
+                    out.write("%25s: %.2f\n" % ("Average " + query.name, statistics.mean([query.get_stat(record) for record in records])))
                 out.write("\n")
-                out.write("%25s: %i\n" % ("Total damage", queries.total_stat(records, lambda r: r.damage)))
-                out.write("%25s: %i\n" % ("Total kills", queries.total_stat(records, lambda r: r.kills)))
-                out.write("%25s: %i\n" % ("Total assistance", queries.total_stat(records, lambda r: r.assist_track + r.assist_spot + r.assist_stun)))
-                out.write("%25s: %i\n" % ("Total spot assistance", queries.total_stat(records, lambda r: r.assist_spot)))
-                out.write("%25s: %i\n" % ("Total stun assistance", queries.total_stat(records, lambda r: r.assist_stun)))
-                out.write("%25s: %i\n" % ("Total track assistance", queries.total_stat(records, lambda r: r.assist_track)))
-                out.write("%25s: %i\n" % ("Total team kills", queries.total_stat(records, lambda r: r.team_kills)))
-                out.write("%25s: %i\n" % ("Total team damage", queries.total_stat(records, lambda r: r.team_damage)))
-                out.write("%25s: %i\n" % ("Total xp", queries.total_stat(records, lambda r: r.xp)))
-                out.write("%25s: %i\n" % ("Total spots", queries.total_stat(records, lambda r: r.spots)))
+                for query in stat_queries:
+                    out.write("%25s: %i\n" % ("Total " + query.name, sum([query.get_stat(record) for record in records])))
                 out.write("\n")
-                out.write("%25s: %i\n" % ("Highest damage", next(queries.highest_stat(records, lambda r: r.damage)).damage))
-                out.write("%25s: %i\n" % ("Highest kills", next(queries.highest_stat(records, lambda r: r.kills)).kills))
-                record =next(queries.highest_stat(records, lambda r: r.assist_track + r.assist_spot + r.assist_stun))
-                out.write("%25s: %i\n" % ("Highest assistance", record.assist_track + record.assist_spot + record.assist_stun))
-                out.write("%25s: %i\n" % ("Highest spot assistance", next(queries.highest_stat(records, lambda r: r.assist_spot)).assist_spot))
-                out.write("%25s: %i\n" % ("Highest stun assistance", next(queries.highest_stat(records, lambda r: r.assist_stun)).assist_stun))
-                out.write("%25s: %i\n" % ("Highest track assistance", next(queries.highest_stat(records, lambda r: r.assist_track)).assist_track))
-                out.write("%25s: %i\n" % ("Highest team kills", next(queries.highest_stat(records, lambda r: r.team_kills)).team_kills))
-                out.write("%25s: %i\n" % ("Highest team damage", next(queries.highest_stat(records, lambda r: r.team_damage)).team_damage))
-                out.write("%25s: %i\n" % ("Highest xp", next(queries.highest_stat(records, lambda r: r.xp)).xp))
-                out.write("%25s: %i\n" % ("Highest spots", next(queries.highest_stat(records, lambda r: r.spots)).spots))
+                for query in stat_queries:
+                    out.write("%25s: %i\n" % ("Highest " + query.name, max([query.get_stat(record) for record in records])))
     else:
         logging.error("Missing directory: %s" % (d_players_name))
 
-    # +++ highest +++
+    n = 10
+    def mean_key(values, key):
+        values = list(values)
+        return sum([key(value) for value in values]) / len(values)
 
-    # +++ lowest +++
+    with open("leaderboard.txt", "w") as out:
+        for query in overall_stat_queries:
+            out.write("%25s: %s\n" % ("Query","Highest " + query.name))
+            groups =[(name, list(records)) for name, records in groupby(sorted(player_records, key=name_lambda), key=name_lambda)]
+            groups = [(name, query.get_stat(records)) for name, records in groups]
+            groups.sort(key=lambda t: t[1], reverse=True)
+            for name, value in islice(groups, n):
+                out.write("%25s: %.2f\n" % (name, value))
+            out.write("\n")
 
-    # +++ avg +++
+        for query in stat_queries:
+            out.write("%25s: %s\n" % ("Query", "Average " + query.name))
+            groups = [(name, statistics.mean([query.get_stat(record) for record in records])) for name, records in groupby(sorted(player_records, key=name_lambda), key=name_lambda)]
+            groups.sort(key=lambda t: t[1], reverse=True)
+            for name, value in islice(groups, n):
+                out.write("%25s: %.2f\n" % (name, value))
+            out.write("\n")
+
+            out.write("%25s: %s\n" % ("Query", "Total " + query.name))
+            groups = [(name, sum([query.get_stat(record) for record in records])) for name, records in groupby(sorted(player_records, key=name_lambda), key=name_lambda)]
+            groups.sort(key=lambda t: t[1], reverse=True)
+            for name, value in islice(groups, n):
+                out.write("%25s: %i\n" % (name, value))
+            out.write("\n")
+
+            out.write("%25s: %s\n" % ("Query", "Highest " + query.name))
+            groups = [(name, max([query.get_stat(record) for record in records])) for name, records in groupby(sorted(player_records, key=name_lambda), key=name_lambda)]
+            groups.sort(key=lambda t: t[1], reverse=True)
+            for name, value in islice(groups, n):
+                out.write("%25s: %i\n" % (name, value))
+            out.write("\n")
+
 
 def validate_date(s):
     try:
@@ -145,6 +170,7 @@ if __name__ == "__main__":
     parser.add_argument("-T", "--team", help="take only those player record where the player is on the selected side", type=enums.Team.from_string, choices=list(enums.Team))
     parser.add_argument("-R", "--result", help="take only those player records where the player has the specified battle result", type=enums.BattleResult.from_string, choices=list(enums.BattleResult))
     parser.add_argument("-v", "--vehicle", help="take only those player records where the player is in the specified vehicle")
+    parser.add_argument("-B", "--min-battles", help="take only those players who have at least certain number of battles", type=int)
 
     args = parser.parse_args()
 
@@ -178,6 +204,9 @@ if __name__ == "__main__":
         player_filters.append(Filter(filters.player_battle_result_filter, [args.result]))
 
     if args.vehicle != None:
-        player_filters.append(Filter(wotReplayLib.vehicle_filter, [args.vehicle]))
+        player_filters.append(Filter(filters.vehicle_filter, [args.vehicle]))
+
+    if args.min_battles != None:
+        player_filters.append(Filter(filters.battle_count_filter, [args.min_battles, lambda r: r.name]))
 
     analyze(args.directory, replay_filters=replay_filters, player_filters=player_filters)

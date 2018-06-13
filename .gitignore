@@ -3,3 +3,5 @@ jsonDump/
 **/__pycache__/
 *.out
 *.log
+leaderboard.txt
+players_stats/

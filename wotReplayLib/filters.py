@@ -2,6 +2,7 @@
 
 from datetime import datetime
 from collections import namedtuple
+from itertools import groupby
 
 import wotReplayLib.enums
 
@@ -57,3 +58,12 @@ def team_filter(player_records, team):
 def tag_filter(player_records, tag):
     """"""
     return [player_record for player_record in player_records if player_record.clan_abbrev == tag]
+
+def battle_count_filter(player_records, min_battles, get_key):
+    """"""
+    groups = [list(records) for key, records in groupby(sorted(player_records, key=get_key), key=get_key)]
+    result = []
+    for group in groups:
+        if len(group) >= min_battles:
+            result.extend(group)
+    return result

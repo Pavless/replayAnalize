@@ -47,6 +47,9 @@ class DeathReason(MyEnum):
     DROWNED=5
     U6=6
     U7=7
+    U11=11
+    U12=12
+    U13=13
 
     @staticmethod
     def from_string(s):
@@ -83,6 +86,7 @@ class BattleType(MyEnum):
     GLOBALMAP=13
     U20=20
     U21=21
+    U24=24
     U27=27
 
     @staticmethod
