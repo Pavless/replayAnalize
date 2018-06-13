@@ -63,7 +63,7 @@ class Replay:
 
                 self.date_time = match_start['dateTime']
                 self.map_name = match_start['mapName']
-                self.battle_type = wotReplayLib.enums.BattleType(match_start['battleType'])
+                self.battle_type = wotReplayLib.enums.BattleType.from_value(match_start['battleType'])
                 self.author_name = match_start['playerName']        
                 self.author_id = match_start['playerID']
                 self.author_vehicle = match_start['playerVehicle']
@@ -94,7 +94,7 @@ class Replay:
                     self.battle_result = wotReplayLib.enums.BattleResult.DEFEAT
                 
                 self.duration = battle_result['common']['duration']
-                self.finish_reason = wotReplayLib.enums.FinishReason(battle_result['common']['finishReason'])
+                self.finish_reason = wotReplayLib.enums.FinishReason.from_value(battle_result['common']['finishReason'])
                 self.id = battle_result['arenaUniqueID']
 
                 for vehicle_no, vehicles in battle_result['vehicles'].items():
@@ -136,7 +136,7 @@ class Replay:
                             player_record.xp = vehicle['xp']
                             player_record.points_dropped = vehicle['droppedCapturePoints']
                             player_record.points_capture = vehicle['capturePoints']
-                            player_record.death_reason = wotReplayLib.enums.DeathReason(vehicle['deathReason'])
+                            player_record.death_reason = wotReplayLib.enums.DeathReason.from_value(vehicle['deathReason'])
                             player_record.milage = vehicle['mileage']
                             
         
